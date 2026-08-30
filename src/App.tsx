@@ -1,0 +1,113 @@
+import { useEffect, useState, type FormEvent, type ReactNode } from 'react';
+import {
+  ArrowRight, ArrowUpRight, Check, ChevronDown, Globe2, Layers3, Mail,
+  Menu, MoveRight, Palette, PanelTop, PenTool, Send, Smartphone, Sparkles,
+  X, Zap,
+} from 'lucide-react';
+
+type Page = 'home' | 'about' | 'services' | 'portfolio' | 'contact';
+type Icon = typeof Globe2;
+
+const logo = '/assets/images/Gemini_Generated_Image_oimbb9oimbb9oimb-removebg-preview.png';
+const email = 'info.thecaptaindigital@gmail.com';
+
+const navItems: { label: string; page: Page }[] = [
+  { label: 'Home', page: 'home' }, { label: 'About', page: 'about' },
+  { label: 'Services', page: 'services' }, { label: 'Portfolio', page: 'portfolio' },
+  { label: 'Contact', page: 'contact' },
+];
+
+const services = [
+  { number: '01', title: 'Professional Website Design', short: 'Modern, responsive and professional websites designed to build credibility, showcase your business and turn visitors into meaningful enquiries.', icon: PanelTop, page: 'services' as Page },
+  { number: '02', title: 'E-commerce Platforms', short: 'Powerful e-commerce platforms designed to help businesses showcase products, manage online sales and create seamless customer experiences.', icon: Layers3, page: 'services' as Page },
+  { number: '03', title: 'Mobile App Development', short: 'User-friendly mobile applications designed to bring your services, products and customers together on mobile devices.', icon: Smartphone, page: 'services' as Page },
+];
+
+const projects = [
+  { title: 'Corporate Business Website', category: 'Corporate Website', type: 'Websites', tone: 'navy', icon: Globe2 },
+  { title: 'Modern E-commerce Store', category: 'E-commerce', type: 'E-commerce', tone: 'blue', icon: Layers3 },
+  { title: 'Business Management Platform', category: 'Service Platform', type: 'Custom Solutions', tone: 'teal', icon: PanelTop },
+  { title: 'Mobile Customer App', category: 'Mobile Application', type: 'Mobile Apps', tone: 'ink', icon: Smartphone },
+  { title: 'Service Company Website', category: 'Business Website', type: 'Websites', tone: 'sand', icon: PenTool },
+  { title: 'Digital Commerce Platform', category: 'Custom Web Solution', type: 'E-commerce', tone: 'slate', icon: Zap },
+];
+
+function navigate(page: Page) {
+  const path = page === 'home' ? '/' : `/${page}`;
+  window.history.pushState({}, '', path);
+  window.dispatchEvent(new PopStateEvent('popstate'));
+  window.scrollTo({ top: 0, behavior: 'smooth' });
+}
+
+function getPage(): Page {
+  const path = window.location.pathname.replace('/', '');
+  return navItems.some((item) => item.page === path) ? path as Page : 'home';
+}
+
+function Button({ children, onClick, variant = 'primary', type = 'button', className = '' }: { children: ReactNode; onClick?: () => void; variant?: 'primary' | 'ghost' | 'light'; type?: 'button' | 'submit'; className?: string }) {
+  return <button type={type} onClick={onClick} className={`button button-${variant} ${className}`}>{children}<ArrowUpRight size={16} strokeWidth={2.2} /></button>;
+}
+
+function Logo({ light = false }: { light?: boolean }) {
+  return <img className={`logo ${light ? 'logo-light' : ''}`} src={logo} alt="OmniSmart Technologies" />;
+}
+
+function Header({ page }: { page: Page }) {
+  const [menuOpen, setMenuOpen] = useState(false);
+  const [scrolled, setScrolled] = useState(false);
+  useEffect(() => { const onScroll = () => setScrolled(window.scrollY > 18); window.addEventListener('scroll', onScroll); return () => window.removeEventListener('scroll', onScroll); }, []);
+  return <header className={`site-header ${scrolled ? 'header-scrolled' : ''}`}>
+    <div className="container header-inner">
+      <button className="brand" onClick={() => { navigate('home'); setMenuOpen(false); }} aria-label="Go to home"><Logo /></button>
+      <nav className="desktop-nav" aria-label="Main navigation">{navItems.map((item) => <button key={item.page} className={page === item.page ? 'active' : ''} onClick={() => navigate(item.page)}>{item.label}</button>)}</nav>
+      <Button onClick={() => navigate('contact')} className="header-cta">Let's Talk</Button>
+      <button className="menu-toggle" onClick={() => setMenuOpen(!menuOpen)} aria-expanded={menuOpen} aria-label={menuOpen ? 'Close menu' : 'Open menu'}>{menuOpen ? <X /> : <Menu />}</button>
+    </div>
+    {menuOpen && <div className="mobile-nav"><div className="container">{navItems.map((item) => <button key={item.page} className={page === item.page ? 'active' : ''} onClick={() => { navigate(item.page); setMenuOpen(false); }}>{item.label}<ArrowRight size={16} /></button>)}<Button onClick={() => { navigate('contact'); setMenuOpen(false); }}>Let's Talk</Button></div></div>}
+  </header>;
+}
+
+function SectionHeading({ eyebrow, title, text, align = 'left' }: { eyebrow: string; title: string; text?: string; align?: 'left' | 'center' }) {
+  return <div className={`section-heading align-${align}`}><span className="eyebrow">{eyebrow}</span><h2>{title}</h2>{text && <p>{text}</p>}</div>;
+}
+
+function Stats() {
+  return <section className="stats section-pad"><div className="container stats-grid"><div><strong>10<span>+</span></strong><p>Years of Experience</p></div><div><strong>100<span>+</span></strong><p>Clients Served Globally</p></div><div><strong>3</strong><p>Core Technology Services</p></div><div className="stats-note"><Sparkles size={18} /><p>Thoughtful digital work,<br />built around your goals.</p></div></div></section>;
+}
+
+function ServiceCard({ service }: { service: typeof services[number] }) {
+  const Icon = service.icon;
+  return <article className="service-card"><div className="card-top"><span className="card-number">{service.number}</span><div className="icon-box"><Icon size={22} /></div></div><h3>{service.title}</h3><p>{service.short}</p><button onClick={() => navigate(service.page)} className="text-link">Explore solution <ArrowRight size={16} /></button></article>;
+}
+
+function CTA() {
+  return <section className="cta-wrap"><div className="container"><div className="cta"><div className="cta-orbit orbit-one" /><div className="cta-orbit orbit-two" /><div className="cta-content"><span className="eyebrow eyebrow-light">Start a conversation</span><h2>Have a digital<br /><em>project in mind?</em></h2><p>Let's discuss your idea and explore how OmniSmart Technologies can turn it into a professional digital solution.</p><div className="cta-actions"><Button variant="light" onClick={() => navigate('contact')}>Start a Conversation</Button><button className="cta-text-link" onClick={() => navigate('services')}>View Services <ArrowRight size={16} /></button></div></div><div className="cta-mark"><span>OMNI</span><small>SMART / 2026</small></div></div></div></section>;
+}
+
+function Footer() {
+  return <footer className="footer"><div className="container"><div className="footer-grid"><div className="footer-about"><Logo light /><p>Professional technology solutions for businesses ready to move forward with clarity and confidence.</p><a href={`mailto:${email}`} className="footer-email">{email}<ArrowUpRight size={15} /></a></div><div><h4>Company</h4><div className="footer-links">{navItems.slice(1).map((item) => <button key={item.page} onClick={() => navigate(item.page)}>{item.label}</button>)}</div></div><div><h4>Services</h4><div className="footer-links"><button onClick={() => navigate('services')}>Website Design</button><button onClick={() => navigate('services')}>E-commerce Development</button><button onClick={() => navigate('services')}>Mobile App Development</button></div></div><div><h4>Find us</h4><p className="footer-address">Mundra, Kutch,<br />Gujarat, India</p><a href={`mailto:${email}`} className="footer-contact">Email our team <ArrowRight size={15} /></a></div></div><div className="footer-bottom"><span>© 2026 OmniSmart Technologies. All Rights Reserved.</span><span>Technology that helps businesses move forward.</span></div></div></footer>;
+}
+
+function Home() {
+  return <><main><section className="hero"><div className="hero-glow" /><div className="container hero-grid"><div className="hero-copy"><div className="label"><span className="pulse" /> Mundra, Gujarat · Serving globally</div><h1>Build your digital <span>future.</span><br />With OmniSmart.</h1><p>Professional websites, e-commerce platforms and mobile applications designed to help businesses grow, connect and compete in a digital-first world.</p><div className="hero-actions"><Button onClick={() => navigate('contact')}>Start a Project</Button><button className="secondary-link" onClick={() => navigate('services')}>Explore our services <ArrowRight size={17} /></button></div><div className="trust-line"><span>10+ Years Experience</span><i /> <span>100+ Clients Globally</span></div></div><div className="hero-visual"><div className="visual-grid" /><div className="visual-card visual-card-main"><div className="visual-card-head"><span>OMNI / 01</span><span className="status"><i /> LIVE SYSTEM</span></div><div className="visual-ring"><div className="ring-core"><Globe2 size={36} strokeWidth={1.2} /></div></div><div className="visual-footer"><span>Connected<br /><b>possibilities</b></span><ArrowUpRight size={21} /></div></div><div className="floating-card float-top"><span className="float-icon"><Zap size={14} /></span><span>Digital<br /><b>momentum</b></span></div><div className="floating-card float-bottom"><div className="mini-bars"><i /><i /><i /><i /><i /></div><span><b>100+</b><br />businesses moved</span></div></div></div></section><Stats /><section className="section-pad services-preview"><div className="container"><SectionHeading eyebrow="What we do" title="Technology solutions built around your business" text="From your first website to a complete digital platform, we build technology solutions that are practical, scalable and designed around your business goals." /><div className="service-grid">{services.map((service) => <ServiceCard key={service.number} service={service} />)}</div></div></section><section className="why-section section-pad"><div className="container why-grid"><div><SectionHeading eyebrow="The OmniSmart difference" title="A clearer path from ambition to impact." text="Good technology should feel like an advantage — not another thing to manage. We keep the process focused, collaborative and grounded in what your business needs next." /><Button variant="ghost" onClick={() => navigate('about')}>More about us</Button></div><div className="feature-list">{[['10+ Years of Experience','A decade of experience delivering digital and technology solutions.',Globe2],['Global Client Experience','Serving businesses and clients across different markets globally.',MoveRight],['Business-Focused Approach','Technology designed around real business requirements.',Palette],['Professional & Scalable','Solutions built with modern thinking and future growth in mind.',Layers3]].map(([title, text, Icon]) => <div className="feature" key={title as string}><div className="feature-icon"><Icon size={19} /></div><div><h3>{title as string}</h3><p>{text as string}</p></div></div>)}</div></div></section><Process /><PortfolioPreview /><Testimonials /><CTA /></main></>;
+}
+
+function Process() { const steps = [['01','Understand','We understand your business, goals and requirements.'],['02','Plan','We structure the right technology and user experience for your project.'],['03','Build','We design and develop your website, platform or mobile application.'],['04','Launch','We help you move from development to a polished digital presence.']]; return <section className="process-section section-pad"><div className="container"><SectionHeading eyebrow="How we work" title="From idea to digital product" text="A clear, considered process keeps every project moving in the right direction." align="center" /><div className="process-grid">{steps.map(([num, title, text], index) => <div className="process-step" key={num}><div className="process-num">{num}</div><div className="process-line">{index < 3 && <span />}</div><h3>{title}</h3><p>{text}</p></div>)}</div></div></section>; }
+
+function ProjectCard({ project }: { project: typeof projects[number] }) { const Icon = project.icon; return <article className={`project-card project-${project.tone}`}><div className="project-art"><div className="art-window"><div /><div /><div /></div><Icon size={44} strokeWidth={1} /><span className="project-tag">Placeholder project</span></div><div className="project-info"><div><span>{project.category}</span><h3>{project.title}</h3></div><ArrowUpRight size={20} /></div></article>; }
+function PortfolioPreview() { return <section className="portfolio-preview section-pad"><div className="container"><div className="section-row"><SectionHeading eyebrow="Selected work" title="Built for real businesses" text="Explore selected digital experiences and technology solutions created for businesses across different industries." /><Button variant="ghost" onClick={() => navigate('portfolio')}>View all work</Button></div><div className="portfolio-grid">{projects.slice(0, 3).map((project) => <ProjectCard key={project.title} project={project} />)}</div></div></section>; }
+function Testimonials() { return <section className="testimonials section-pad"><div className="container"><SectionHeading eyebrow="In their words" title="Trusted by businesses" text="Client stories will be added here as projects go live." align="center" /><div className="testimonial-grid">{[1,2,3].map((item) => <div className="testimonial" key={item}><div className="quote-mark">“</div><p>Client testimonial will be added here.</p><div className="testimonial-line" /><span>Testimonial placeholder</span></div>)}</div></div></section>; }
+
+function PageHero({ eyebrow, title, text }: { eyebrow: string; title: ReactNode; text: string }) { return <section className="page-hero"><div className="container page-hero-inner"><span className="eyebrow">{eyebrow}</span><h1>{title}</h1><p>{text}</p></div><div className="page-hero-grid" /></section>; }
+function About() { return <main><PageHero eyebrow="About OmniSmart" title={<>Technology experience.<br /><em>Business understanding.</em></>} text="OmniSmart Technologies is an IT company based in Mundra, Kutch, focused on creating professional digital experiences and technology solutions for businesses." /><section className="section-pad about-intro"><div className="container about-grid"><div><SectionHeading eyebrow="Our story" title="Making technology feel more useful." text="With 10+ years of industry experience and 100+ clients served globally, we work at the intersection of thoughtful design, practical technology and business ambition." /><Button onClick={() => navigate('contact')}>Work with us</Button></div><div className="about-stat-card"><span>01 / 02</span><strong>10<span>+</span></strong><p>Years of industry experience</p><div className="stat-card-rule" /><strong>100<span>+</span></strong><p>Clients served globally</p></div></div></section><section className="approach section-pad"><div className="container"><SectionHeading eyebrow="Our approach" title="Simple principles. Better outcomes." text="The best digital work starts with listening and ends with something people can use." /><div className="approach-grid">{['Understand the business','Simplify the technology','Focus on user experience','Build professionally','Think long-term'].map((item, index) => <div className="approach-item" key={item}><span>0{index + 1}</span><h3>{item}</h3><Check size={18} /></div>)}</div></div></section><CTA /></main>; }
+
+const serviceDetails = [{ title: 'Website Design & Development', icon: PanelTop, text: 'Build a credible and useful digital home for your business, from first impression through enquiry.', items: ['Corporate websites','Business websites','Responsive websites','Landing pages','Custom website development','Website redesign','Mobile-responsive development','Contact / enquiry integrations'] }, { title: 'E-commerce Development', icon: Layers3, text: 'Create a clear, confident shopping experience that helps your products and customers connect.', items: ['Online stores','Product catalogues','Shopping cart','Checkout experience','Payment integration-ready architecture','Order management','Responsive shopping experience','Custom e-commerce solutions'] }, { title: 'Mobile App Development', icon: Smartphone, text: 'Bring your services, products and customers together with a mobile experience designed for everyday use.', items: ['Business apps','Customer apps','Service apps','Android applications','iOS applications','Cross-platform applications','API / backend integration'] }];
+function Services() { return <main><PageHero eyebrow="What we offer" title={<>Digital solutions for<br /><em>modern businesses.</em></>} text="Practical technology, considered design and a clear focus on helping your business move forward." /><section className="service-details section-pad"><div className="container">{serviceDetails.map((service, index) => { const Icon = service.icon; return <article className="service-detail" key={service.title}><div className="service-detail-number">0{index + 1}</div><div className="service-detail-heading"><div className="icon-box"><Icon size={25} /></div><h2>{service.title}</h2><p>{service.text}</p><Button onClick={() => navigate('contact')}>Discuss your project</Button></div><div className="service-items">{service.items.map((item) => <div key={item}><Check size={16} />{item}</div>)}</div></article>; })}</div></section><CTA /></main>; }
+
+function Portfolio() { const [filter, setFilter] = useState('All'); const filters = ['All','Websites','E-commerce','Mobile Apps','Custom Solutions']; const shown = filter === 'All' ? projects : projects.filter((project) => project.type === filter); return <main><PageHero eyebrow="Our portfolio" title={<>Built with intent.<br /><em>Ready for what’s next.</em></>} text="A flexible showcase of placeholder projects, ready to be replaced with your real work as it comes to life." /><section className="section-pad portfolio-page"><div className="container"><div className="filter-bar" role="tablist">{filters.map((item) => <button key={item} className={filter === item ? 'selected' : ''} onClick={() => setFilter(item)} role="tab" aria-selected={filter === item}>{item}</button>)}</div><div className="portfolio-full-grid">{shown.map((project) => <ProjectCard key={project.title} project={project} />)}</div></div></section><CTA /></main>; }
+
+function Contact() { const [sent, setSent] = useState(false); const [error, setError] = useState(''); const submit = (event: FormEvent<HTMLFormElement>) => { event.preventDefault(); setError(''); const data = new FormData(event.currentTarget); const name = String(data.get('name') || '').trim(); const from = String(data.get('email') || '').trim(); const service = String(data.get('service') || ''); const details = String(data.get('details') || '').trim(); if (!name || !from || !service || !details) { setError('Please complete all required fields before sending your enquiry.'); return; } const subject = encodeURIComponent(`New project enquiry from ${name}`); const body = encodeURIComponent(`Name: ${name}\nEmail: ${from}\nCompany: ${data.get('company') || 'Not provided'}\nPhone: ${data.get('phone') || 'Not provided'}\nService: ${service}\nBudget: ${data.get('budget') || 'Not provided'}\n\nProject details:\n${details}`); window.location.href = `mailto:${email}?subject=${subject}&body=${body}`; setSent(true); event.currentTarget.reset(); }; return <main><PageHero eyebrow="Let’s work together" title={<>Let's build something<br /><em>digital.</em></>} text="Tell us about your project, business or idea. Our team will get back to you to discuss the next steps." /><section className="section-pad contact-section"><div className="container contact-grid"><div className="contact-aside"><SectionHeading eyebrow="Start here" title="Tell us what you’re building." text="A few details are all we need to begin a useful conversation." /><div className="contact-detail"><div className="icon-box"><Mail size={19} /></div><div><span>Email</span><a href={`mailto:${email}`}>{email}</a></div></div><div className="contact-detail"><div className="icon-box"><Globe2 size={19} /></div><div><span>Based in</span><p>Mundra, Kutch,<br />Gujarat, India</p></div></div></div><form className="contact-form" onSubmit={submit}><div className="form-intro"><span>Project enquiry</span><small>Fields marked * are required</small></div>{sent && <div className="form-success"><Check size={18} />Thank you! Your enquiry has been received. We'll get back to you shortly.</div>}{error && <div className="form-error">{error}</div>}<div className="form-row"><label>Full Name *<input name="name" placeholder="Your name" required /></label><label>Company Name<input name="company" placeholder="Your company" /></label></div><div className="form-row"><label>Email Address *<input type="email" name="email" placeholder="you@company.com" required /></label><label>Phone Number<input name="phone" placeholder="+91 ..." /></label></div><div className="form-row"><label>Service Interested In *<select name="service" required defaultValue=""><option value="" disabled>Select a service</option><option>Website Design</option><option>E-commerce Platform</option><option>Mobile App</option><option>Custom Solution</option><option>Other</option></select><ChevronDown size={16} /></label><label>Budget Range<select name="budget" defaultValue=""><option value="">Not Sure Yet</option><option>Under ₹50,000</option><option>₹50,000 – ₹1,00,000</option><option>₹1,00,000 – ₹3,00,000</option><option>₹3,00,000+</option></select><ChevronDown size={16} /></label></div><label>Project Details *<textarea name="details" placeholder="Tell us a little about your goals, timeline and what you need help with." rows={5} required /></label><Button type="submit">Send Enquiry <Send size={15} /></Button><p className="form-note">This will open your email app with your enquiry addressed to {email}.</p></form></div></section></main>; }
+
+function App() { const [page, setPage] = useState<Page>(getPage()); useEffect(() => { const onPop = () => setPage(getPage()); window.addEventListener('popstate', onPop); document.title = page === 'home' ? 'OmniSmart Technologies | Website, E-commerce & Mobile App Development' : `${page[0].toUpperCase()}${page.slice(1)} | OmniSmart Technologies`; return () => window.removeEventListener('popstate', onPop); }, [page]); const content = page === 'home' ? <Home /> : page === 'about' ? <About /> : page === 'services' ? <Services /> : page === 'portfolio' ? <Portfolio /> : <Contact />; return <><Header page={page} />{content}<Footer /></>; }
+
+export default App;
